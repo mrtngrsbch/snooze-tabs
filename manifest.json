@@ -1,26 +1,51 @@
 {
-    "manifest_version": 3,
-    "description": "Easily snooze tabs with a click! Set timers to hide distracting tabs and automatically bring them back when you need them again.",
-    "name": "Tab Snoozer - Snooze tabs in a click",
-    "short_name": "Tab Snoozer",
-    "author": "Rusty",
-    "version": "1.0.2",
-    "permissions": ["storage", "activeTab", "alarms"],
-    "background": {
-      "service_worker": "sw.js"
-    },
-    "action": {
-      "default_popup": "popup.html",
-      "default_icon": {
-        "16": "icon.png",
-        "48": "icon.png",
-        "128": "icon.png"
-      }
-    },
-    "icons": {
-      "16": "icon.png",
-      "48": "icon.png",
-      "128": "icon.png"
-    }
-  }
-  
+	"manifest_version": 3,
+	"description": "Easily snooze tabs with a click! Set timers to hide distracting tabs and automatically bring them back when you need them again.",
+	"name": "Tab Snoozer - Snooze tabs in a click",
+	"short_name": "Tab Snoozer",
+	"author": "Rusty",
+	"version": "1.0.2",
+	"permissions": ["storage", "activeTab", "alarms", "tabs"],
+	"commands": {
+		"snooze-10min": {
+			"suggested_key": {
+				"default": "Ctrl+Shift+1"
+			},
+			"description": "Snooze the current tab for 10 minutes"
+		},
+		"snooze-1hour": {
+			"suggested_key": {
+				"default": "Ctrl+Shift+2"
+			},
+			"description": "Snooze the current tab for 1 hour"
+		},
+		"snooze-tomorrow-morning": {
+			"suggested_key": {
+				"default": "Ctrl+Shift+3"
+			},
+			"description": "Snooze the current tab until tomorrow morning (9 AM)"
+		},
+		"snooze-weekend-or-monday": {
+			"suggested_key": {
+				"default": "Ctrl+Shift+4"
+			},
+			"description": "Snooze the current tab until Saturday or Monday morning"
+		}
+	},
+	"background": {
+		"service_worker": "sw.js"
+	},
+	"action": {
+		"default_popup": "popup.html",
+		"default_icon": {
+			"16": "icon.png",
+			"48": "icon.png",
+			"128": "icon.png"
+		}
+	},
+	"icons": {
+		"16": "icon.png",
+		"48": "icon.png",
+		"128": "icon.png"
+	}
+}
