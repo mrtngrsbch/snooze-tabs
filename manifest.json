@@ -7,29 +7,30 @@
 	"version": "1.0.2",
 	"permissions": ["storage", "activeTab", "alarms", "tabs"],
 	"commands": {
-		"snooze-10min": {
-			"suggested_key": {
-				"default": "Ctrl+Shift+1"
-			},
-			"description": "Snooze the current tab for 10 minutes"
-		},
 		"snooze-1hour": {
 			"suggested_key": {
-				"default": "Ctrl+Shift+2"
+				"default": "Ctrl+Shift+1"
 			},
 			"description": "Snooze the current tab for 1 hour"
 		},
 		"snooze-tomorrow-morning": {
 			"suggested_key": {
-				"default": "Ctrl+Shift+3"
+				"default": "Ctrl+Shift+2"
 			},
 			"description": "Snooze the current tab until tomorrow morning (9 AM)"
 		},
 		"snooze-weekend-or-monday": {
 			"suggested_key": {
-				"default": "Ctrl+Shift+4"
+				"default": "Ctrl+Shift+3"
 			},
 			"description": "Snooze the current tab until Saturday or Monday morning"
+		},
+		"snooze-one-month": {
+			"suggested_key": {
+				"default": "Ctrl+Shift+4",
+				"mac": "Command+Shift+4"
+			},
+			"description": "Snooze the current tab for one month"
 		}
 	},
 	"background": {

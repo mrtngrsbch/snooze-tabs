@@ -3,17 +3,9 @@ const customModal = document.getElementById("customModal");
 const recurringModal = document.getElementById("recurringModal");
 
 function getSmartSnoozeOptions() {
-  const now = new Date();
-  const hour = now.getHours();
-  const day = now.getDay(); // 0 is Sunday, 6 is Saturday
+  // Deterministic ordered options per user request:
+  // 1) 1 hour, 2) tomorrow morning (9 AM), 3) weekend or monday, 4) one month
   const options = [];
-
-  // Always show quick options
-  options.push({
-    id: 'snooze10min',
-    text: 'Snooze for 10 minutes',
-    hours: 0.17
-  });
 
   options.push({
     id: 'snooze1hour',
@@ -21,44 +13,23 @@ function getSmartSnoozeOptions() {
     hours: 1
   });
 
-  // Context-aware options
-  if (hour < 12) {
-    // Morning
-    options.push({
-      id: 'snoozeAfternoon',
-      text: 'Snooze until 2 PM',
-      hours: getHoursUntil(14, 0)
-    });
-  } else if (hour < 17) {
-    // Afternoon
-    options.push({
-      id: 'snoozeEvening',
-      text: 'Snooze until this evening (6 PM)',
-      hours: getHoursUntil(18, 0)
-    });
-  } else {
-    // Evening/Night
-    options.push({
-      id: 'snoozeNextMorning',
-      text: 'Snooze until tomorrow morning (9 AM)',
-      hours: getHoursUntil(9, 0, 1)
-    });
-  }
+  options.push({
+    id: 'snoozeTomorrowMorning',
+    text: 'Snooze until tomorrow morning (9 AM)',
+    hours: getHoursUntil(9, 0, 1)
+  });
 
-  // Weekend options
-  if (day < 5) { // Monday-Friday
-    options.push({
-      id: 'snoozeWeekend',
-      text: 'Snooze until Saturday morning',
-      hours: getHoursUntilNextDay(6, 10, 0) // Saturday at 10 AM
-    });
-  } else {
-    options.push({
-      id: 'snoozeNextWeek',
-      text: 'Snooze until Monday morning',
-      hours: getHoursUntilNextDay(1, 9, 0) // Monday at 9 AM
-    });
-  }
+  options.push({
+    id: 'snoozeWeekend',
+    text: 'Snooze until Saturday or Monday morning',
+    hours: getWeekendOrMondayHours()
+  });
+
+  options.push({
+    id: 'snoozeOneMonth',
+    text: 'Snooze for one month',
+    hours: getHoursUntilOneMonth()
+  });
 
   return options;
 }
@@ -84,6 +55,40 @@ function getHoursUntilNextDay(targetDay, targetHour, targetMinute) {
     target.setDate(target.getDate() + 1);
   }
   
+  return (target - now) / (1000 * 60 * 60);
+}
+
+function getWeekendOrMondayHours() {
+  const now = new Date();
+  const day = now.getDay();
+  if (day < 5) {
+    // Saturday at 10 AM
+    return getHoursUntilNextDay(6, 10, 0);
+  }
+  // Monday at 9 AM
+  return getHoursUntilNextDay(1, 9, 0);
+}
+
+function getHoursUntilOneMonth() {
+  const now = new Date();
+
+  // Attempt to construct same day next month at the same time
+  let target = new Date(
+    now.getFullYear(),
+    now.getMonth() + 1,
+    now.getDate(),
+    now.getHours(),
+    now.getMinutes(),
+    now.getSeconds(),
+    now.getMilliseconds()
+  );
+
+  // If the target month rolled over because the next month doesn't have this day
+  // (e.g., Jan 31 -> Feb 31 -> Mar 3), then set target to the last day of next month
+  if (target.getMonth() !== (now.getMonth() + 1) % 12) {
+    target = new Date(now.getFullYear(), now.getMonth() + 2, 0, now.getHours(), now.getMinutes(), now.getSeconds(), now.getMilliseconds());
+  }
+
   return (target - now) / (1000 * 60 * 60);
 }
 
@@ -152,7 +157,7 @@ async function handleRecurringSnooze() {
   const [hours, minutes] = timeInput.value.split(":").map(Number);
   const [currentTab] = await chrome.tabs.query({ active: true, currentWindow: true });
   
-  if (!currentTab || !currentTab.url) {
+  if (!currentTab?.url) {
     alert("No active tab found to snooze.");
     return;
   }
@@ -231,7 +236,7 @@ setInterval(updateSnoozeGrid, 60000);
 
 async function snoozeTab(hours) {
   const [currentTab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  if (!currentTab || !currentTab.url) {
+  if (!currentTab?.url) {
     alert("No active tab found to snooze.");
     return;
   }
@@ -437,11 +442,11 @@ function listSnoozed() {
     // Sort and add items to appropriate tabs
     regularSnoozes
       .sort(([,a], [,b]) => a.snoozeTime - b.snoozeTime)
-      .forEach(([key, value]) => addItemToTab(key, value, regularTabContent));
+      .forEach(([key, value]) => { addItemToTab(key, value, regularTabContent); });
 
     recurringSnoozes
       .sort(([,a], [,b]) => a.snoozeTime - b.snoozeTime)
-      .forEach(([key, value]) => addItemToTab(key, value, recurringTabContent));
+      .forEach(([key, value]) => { addItemToTab(key, value, recurringTabContent); });
   });
 }
 

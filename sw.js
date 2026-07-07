@@ -126,6 +126,27 @@ try {
 		return (target - now) / (1000 * 60 * 60);
 	}
 
+	function getHoursUntilOneMonth() {
+		const now = new Date();
+
+		let target = new Date(
+			now.getFullYear(),
+			now.getMonth() + 1,
+			now.getDate(),
+			now.getHours(),
+			now.getMinutes(),
+			now.getSeconds(),
+			now.getMilliseconds()
+		);
+
+		if (target.getMonth() !== (now.getMonth() + 1) % 12) {
+			// Use last day of next month at same time
+			target = new Date(now.getFullYear(), now.getMonth() + 2, 0, now.getHours(), now.getMinutes(), now.getSeconds(), now.getMilliseconds());
+		}
+
+		return (target - now) / (1000 * 60 * 60);
+	}
+
 	function getWeekendOrMondayHours() {
 		const now = new Date();
 		const day = now.getDay();
@@ -140,7 +161,7 @@ try {
 			active: true,
 			currentWindow: true,
 		});
-		if (!currentTab || !currentTab.url) {
+		if (!currentTab?.url) {
 			console.log(`Command ${commandName}: no active tab found to snooze.`);
 			return;
 		}
@@ -161,18 +182,18 @@ try {
 
 	chrome.commands.onCommand.addListener(async (command) => {
 		switch (command) {
-			case "snooze-10min":
-				await snoozeCurrentTab(10 / 60, command);
-				break;
-			case "snooze-1hour":
-				await snoozeCurrentTab(1, command);
-				break;
-			case "snooze-tomorrow-morning":
-				await snoozeCurrentTab(getHoursUntil(9, 0, 1), command);
-				break;
-			case "snooze-weekend-or-monday":
-				await snoozeCurrentTab(getWeekendOrMondayHours(), command);
-				break;
+				case "snooze-one-month":
+					await snoozeCurrentTab(getHoursUntilOneMonth(), command);
+					break;
+				case "snooze-1hour":
+					await snoozeCurrentTab(1, command);
+					break;
+				case "snooze-tomorrow-morning":
+					await snoozeCurrentTab(getHoursUntil(9, 0, 1), command);
+					break;
+				case "snooze-weekend-or-monday":
+					await snoozeCurrentTab(getWeekendOrMondayHours(), command);
+					break;
 			default:
 				console.log(`Unknown command: ${command}`);
 		}
